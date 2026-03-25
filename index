@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Dashboard</title>
+    <meta http-equiv="refresh" content="60">
+    <style>
+        /* Locks the screen to prevent scrolling */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+            overflow: hidden; 
+        }
+        
+        /* Forces the table to stretch and fill 90% of the screen height */
+        table {
+            width: 100%;
+            height: 90%; 
+            border-collapse: collapse;
+            table-layout: fixed; 
+        }
+        
+        /* Vertically and horizontally centers the text */
+        td {
+            width: 50%;
+            vertical-align: middle; 
+            border-bottom: 2px solid #cccccc;
+            text-align: center;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .symbol {
+            font-size: 38px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .price {
+            font-size: 46px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        
+        /* Keeps the footer neatly at the bottom 10% */
+        .time {
+            height: 10%;
+            font-size: 24px;
+            color: #444444;
+            text-align: center;
+            border-top: 4px solid #000000;
+            box-sizing: border-box;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <table>
+        <tr>
+            <td>
+                <div class="symbol">TSLA</div>
+                <div class="price" id="tsla-price">---</div>
+            </td>
+            <td>
+                <div class="symbol">TSM</div>
+                <div class="price" id="tsm-price">---</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="symbol">MU</div>
+                <div class="price" id="mu-price">---</div>
+            </td>
+            <td>
+                <div class="symbol">INTC</div>
+                <div class="price" id="intc-price">---</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="symbol">AMAT</div>
+                <div class="price" id="amat-price">---</div>
+            </td>
+            <td>
+                <div class="symbol">BE</div>
+                <div class="price" id="be-price">---</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="symbol">CRWD</div>
+                <div class="price" id="crwd-price">---</div>
+            </td>
+            <td>
+                <div class="symbol">ISRG</div>
+                <div class="price" id="isrg-price">---</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="symbol">AMD</div>
+                <div class="price" id="amd-price">---</div>
+            </td>
+            <td>
+                <div class="symbol">RCAT</div>
+                <div class="price" id="rcat-price">---</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="symbol">ONDS</div>
+                <div class="price" id="onds-price">---</div>
+            </td>
+            <td>
+                </td>
+        </tr>
+    </table>
+
+    <div class="time" id="last-update">Loading data...</div>
+
+    <script>
+        // Your Finnhub API Key
+        var apiKey = 'd71l5m1r01qpd278bq3gd71l5m1r01qpd278bq40'; 
+        
+        var symbols = ['TSLA', 'TSM', 'MU', 'INTC', 'AMAT', 'BE', 'CRWD', 'ISRG', 'AMD', 'RCAT', 'ONDS'];
+
+        function fetchPrice(symbol) {
+            var url = 'https://finnhub.io/api/v1/quote?symbol=' + symbol + '&token=' + apiKey;
+            var xhr = new XMLHttpRequest(); 
+            
+            xhr.open('GET', url, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var currentPrice = data.c;
+                    var previousClose = data.pc;
+                    var indicator = "";
+
+                    if (currentPrice > previousClose) {
+                        indicator = " ▲";
+                    } else if (currentPrice < previousClose) {
+                        indicator = " ▼";
+                    } else {
+                        indicator = " ▬";
+                    }
+
+                    document.getElementById(symbol.toLowerCase() + '-price').innerText = '$' + currentPrice.toFixed(2) + indicator;
+                } else {
+                    document.getElementById(symbol.toLowerCase() + '-price').innerText = 'ERR';
+                }
+            };
+            xhr.onerror = function() {
+                document.getElementById(symbol.toLowerCase() + '-price').innerText = 'NET ERR';
+            };
+            xhr.send();
+        }
+
+        for (var i = 0; i < symbols.length; i++) {
+            fetchPrice(symbols[i]);
+        }
+
+        var now = new Date();
+        var timeString = now.getHours() + ':' + 
+                         (now.getMinutes() < 10 ? '0' : '') + now.getMinutes() + ':' + 
+                         (now.getSeconds() < 10 ? '0' : '') + now.getSeconds();
+        document.getElementById('last-update').innerText = 'Last updated: ' + timeString;
+    </script>
+
+</body>
+</html>
